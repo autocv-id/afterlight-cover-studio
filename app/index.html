@@ -3,20 +3,108 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Cover Snap</title>
+<title>AFTERLIGHT Cover Studio — GTA-style cover art from your photos</title>
 <link rel="stylesheet" href="./style.css">
 </head>
 <body>
-<main class="app">
-  <section class="controls">
-    <h1>Cover Snap</h1>
-    <p>A photo and a caption, made into a square cover.</p>
-    <label>Photo <input id="photo" type="file" accept="image/*"></label>
-    <label>Caption <input id="caption" type="text" maxlength="40" value="Sunset Heist"></label>
-    <button id="export" type="button">Export PNG 1080 x 1080</button>
-    <p id="status" role="status"></p>
+<header class="topbar">
+  <div class="brand"><span class="logo">AFTERLIGHT</span> Cover Studio</div>
+  <ol class="steps" aria-label="Steps">
+    <li class="done">1 Add photos</li>
+    <li class="done">2 Arrange</li>
+    <li>3 Export PNG</li>
+  </ol>
+  <div class="history">
+    <button id="undo" type="button" disabled>Undo</button>
+    <button id="redo" type="button" disabled>Redo</button>
+  </div>
+</header>
+<main class="studio">
+  <aside class="rail left" aria-label="Photos, layouts and grades">
+    <section class="block">
+      <h2>Photos</h2>
+      <label class="file-button">+ Add photos <input id="add-photos" type="file" accept="image/*" multiple></label>
+      <p class="micro">or drop · paste — read on your machine, never uploaded</p>
+      <div class="row">
+        <button id="load-samples" type="button">Load samples</button>
+        <button id="autofill" type="button">Auto-fill panels</button>
+      </div>
+      <button id="one-photo" class="wide" type="button">One photo → all panels</button>
+      <div id="thumbnails" class="thumbs"></div>
+    </section>
+    <section class="block">
+      <h2>Layouts</h2>
+      <div id="layouts" class="options"></div>
+    </section>
+    <section class="block">
+      <h2>Grades</h2>
+      <div id="grades" class="options"></div>
+    </section>
+  </aside>
+
+  <section class="stage" aria-label="Live preview">
+    <div class="preview-wrap">
+      <canvas id="cover" width="1920" height="1080" aria-label="The cover"></canvas>
+      <div id="panel-numbers"></div>
+    </div>
+    <p class="hint">Drag to pan · Scroll to zoom · Click a panel, then a photo, to swap</p>
+    <p class="promise">Every panel is your own photo — one photo fills all panels, or mix several. Nothing leaves your machine.</p>
   </section>
-  <canvas id="cover" width="1080" height="1080" aria-label="The cover"></canvas>
+
+  <aside class="rail right" aria-label="Panel, caption and export controls">
+    <section class="block">
+      <h2>Panel</h2>
+      <label class="slider">Zoom <input id="zoom" type="range" min="100" max="300" value="100"><span id="zoom-value">1.0×</span></label>
+      <div class="row">
+        <button id="reset-crop" type="button">Reset</button>
+        <button id="flip" type="button">Flip</button>
+        <button id="swap" type="button">Swap</button>
+        <button id="face" type="button">Face</button>
+      </div>
+      <label>Name tag <input id="name-tag" type="text" maxlength="24" placeholder="THE DRIVER"></label>
+      <label class="check"><input id="popout" type="checkbox" checked> Pop-out hero</label>
+    </section>
+    <section class="block">
+      <h2>Caption</h2>
+      <label>Title <input id="title" type="text" maxlength="24" value="VELVET STATIC"></label>
+      <label>Script line <input id="script" type="text" maxlength="40" value="one last golden hour"></label>
+      <label>Tagline <input id="tagline" type="text" maxlength="48" value="SEVEN FACES · ONE COAST · LAST LIGHT"></label>
+      <label>Ticket badge <input id="ticket" type="text" maxlength="20" value="FIRST PRESSING"></label>
+      <label>Press quote <input id="quote" type="text" maxlength="64" value="SALT, STATIC AND GASOLINE"></label>
+    </section>
+    <section class="block">
+      <h2>Poster extras</h2>
+      <div class="checks-grid">
+        <label class="check"><input id="fx-quote" type="checkbox" checked> Stars &amp; quote</label>
+        <label class="check"><input id="fx-heat" type="checkbox" checked> Heat pill</label>
+        <label class="check"><input id="fx-seal" type="checkbox" checked> Seal</label>
+        <label class="check"><input id="fx-tags" type="checkbox" checked> Panel tags</label>
+        <label class="check"><input id="fx-billing" type="checkbox" checked> Billing band</label>
+        <label class="check"><input id="fx-stat" type="checkbox" checked> Stat card</label>
+      </div>
+    </section>
+    <section class="block">
+      <h2>Look</h2>
+      <label class="slider">Paint <input id="look-paint" type="range" min="0" max="100" value="45"></label>
+      <label class="slider">Grade <input id="look-grade" type="range" min="0" max="100" value="70"></label>
+      <label class="slider">Halftone <input id="look-halftone" type="range" min="0" max="100" value="35"></label>
+      <label class="slider">Grain <input id="look-grain" type="range" min="0" max="100" value="30"></label>
+      <label class="slider">Glow <input id="look-glow" type="range" min="0" max="100" value="50"></label>
+    </section>
+    <section class="block">
+      <h2>Export</h2>
+      <label>Size
+        <select id="size">
+          <option value="wide" selected>1920 × 1080</option>
+          <option value="portrait">1080 × 1350</option>
+          <option value="square">1080 × 1080</option>
+        </select>
+      </label>
+      <button id="export" class="wide primary" type="button">Export PNG</button>
+      <button id="export-all" class="wide" type="button">Export all three</button>
+      <p id="status" role="status"></p>
+    </section>
+  </aside>
 </main>
 <script type="module" src="./src/main.js"></script>
 </body>
