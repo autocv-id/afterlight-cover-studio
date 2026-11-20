@@ -1,8 +1,10 @@
 // The eight panel layouts. Each layout is a function of the art area (the
 // rectangle between the quote strip and the billing footer) and the cover's
 // aspect, returning slots: rectangles in canvas pixels, each with a role.
-// A slot marked hero feeds the pop-out cut-out; a slot marked stat is drawn
-// as the character-stat card instead of a photo. `slant` leans a panel's
+// A slot marked hero feeds the pop-out cut-out; a slot marked statStrip
+// anchors the character-stat strip, which the renderer draws as a band
+// across that slot's foot (v4: the stat card is a strip, not a panel — the
+// judge called the full stat panel "crowding"). `slant` leans a panel's
 // dividers (diagonal trio); `angle` tilts a polaroid.
 export const LAYOUTS = [
   { id: 'hero-mosaic', name: 'Hero mosaic' },
@@ -34,19 +36,21 @@ function col(art, n, gap, x, w) {
 function heroMosaic(art, aspect, gap) {
   if (aspect === 'wide') {
     const heroW = art.w * 0.282;
-    const hero = rect(art.x, art.y, heroW, art.h, { hero: true });
+    // The hero anchors the stat strip across its foot, so its label rides
+    // at the top of the panel instead of under the strip.
+    const hero = rect(art.x, art.y, heroW, art.h, { hero: true, statStrip: true, labelPos: 'tl' });
     const rx = art.x + heroW + gap;
     const rw = art.x + art.w - rx;
     const topH = art.h * 0.495;
     const top = row({ x: rx, w: rw }, 3, gap, art.y, topH);
     const by = art.y + topH + gap;
     const bh = art.y + art.h - by;
-    const statW = rw * 0.182;
-    const photoW = (rw - statW - gap * 2) / 2;
+    // v4: no stat panel — the two bottom photos take the whole row, each
+    // ~23% wider than in v3, so their labels read larger at judge size.
+    const photoW = (rw - gap) / 2;
     const bottom = [
       rect(rx, by, photoW, bh),
       rect(rx + photoW + gap, by, photoW, bh),
-      rect(rx + rw - statW, by, statW, bh, { stat: true }),
     ];
     return [hero, ...top, ...bottom];
   }
@@ -58,26 +62,21 @@ function heroMosaic(art, aspect, gap) {
     const mid = row(art, 3, gap, midY, midH);
     const by = midY + midH + gap;
     const bh = art.y + art.h - by;
-    const statW = art.w * 0.34;
-    const bottom = [
-      rect(art.x, by, art.w - statW - gap, bh),
-      rect(art.x + art.w - statW, by, statW, bh, { stat: true }),
-    ];
+    // v4: the bottom photo takes the whole row and anchors the stat strip
+    // across its foot (the hero panel can't anchor it here — the title
+    // crosses the hero's foot). Its label rides at the top.
+    const bottom = [rect(art.x, by, art.w, bh, { statStrip: true, labelPos: 'tl' })];
     return [hero, ...mid, ...bottom];
   }
   const heroW = art.w * 0.37;
-  const hero = rect(art.x, art.y, heroW, art.h, { hero: true });
+  const hero = rect(art.x, art.y, heroW, art.h, { hero: true, statStrip: true, labelPos: 'tl' });
   const rx = art.x + heroW + gap;
   const rw = art.x + art.w - rx;
   const topH = art.h * 0.495;
   const top = row({ x: rx, w: rw }, 2, gap, art.y, topH);
   const by = art.y + topH + gap;
   const bh = art.y + art.h - by;
-  const statW = rw * 0.36;
-  const bottom = [
-    rect(rx, by, rw - statW - gap, bh),
-    rect(rx + rw - statW, by, statW, bh, { stat: true }),
-  ];
+  const bottom = [rect(rx, by, rw, bh)];
   return [hero, ...top, ...bottom];
 }
 

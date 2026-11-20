@@ -333,6 +333,10 @@ function syncForm() {
   $('tagline').value = state.caption.tagline;
   $('ticket').value = state.caption.ticket;
   $('quote').value = state.caption.quote;
+  // v4: the size selector is part of the form too — without this, a shot
+  // preset (or an undo) that changes the size leaves the selector showing
+  // the old size next to the new preview.
+  $('size').value = state.size;
   $('fx-quote').checked = state.furniture.quote;
   $('fx-heat').checked = state.furniture.heat;
   $('fx-seal').checked = state.furniture.seal;

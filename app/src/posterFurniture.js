@@ -39,7 +39,10 @@ export function drawStars(ctx, x, y, size, count, filled, fill = '#ffc93c', empt
 }
 
 /** The top strip: five gold stars, the press quote and its paper, and the
- *  ticket stub at the right. `strip` is the strip's rectangle. */
+ *  ticket stub at the right. `strip` is the strip's rectangle. The quote
+ *  and its source shrink to fit the space before the ticket — on a narrow
+ *  (portrait) strip the long quote used to run under the ticket and hide
+ *  the attribution entirely. */
 export function drawQuoteStrip(ctx, strip, caption, ticket, u) {
   const { x, y, w, h } = strip;
   ctx.fillStyle = '#160a1e';
@@ -50,22 +53,46 @@ export function drawQuoteStrip(ctx, strip, caption, ticket, u) {
     drawStars(ctx, x + pad, y + (h - starSize) / 2, starSize, 5, 5);
   }
   const textX = x + pad + (caption.quote ? starSize * 5 * 1.25 + pad * 0.8 : 0);
+  // Measure the ticket first: the text must end before it starts.
+  let ticketW = 0;
+  if (ticket) {
+    ctx.font = `bold ${Math.round(h * 0.32)}px "Bebas Neue", sans-serif`;
+    ticketW = ctx.measureText(ticket).width + h * 0.9;
+  }
+  const available = w - (textX - x) - ticketW - pad * 2;
+  const quote = caption.quote ? `“${caption.quote}”` : '';
+  const source = caption.quoteSource ? `— ${caption.quoteSource}` : '';
+  // Shrink the quote + source together until they fit (never below 55%
+  // of the nominal size — below that the strip reads as noise anyway).
+  let quoteSize = h * 0.34;
+  let sourceSize = h * 0.26;
+  if (quote) {
+    ctx.font = `${Math.round(quoteSize)}px "Bebas Neue", sans-serif`;
+    const qw = ctx.measureText(quote).width;
+    ctx.font = `${Math.round(sourceSize)}px "Bebas Neue", sans-serif`;
+    const sw = source ? ctx.measureText(source).width : 0;
+    const need = qw + (source ? h * 0.22 + sw : 0);
+    if (need > available && need > 0) {
+      const scale = Math.max(0.55, available / need);
+      quoteSize *= scale;
+      sourceSize *= scale;
+    }
+  }
   ctx.textBaseline = 'middle';
   ctx.fillStyle = '#ffe9b0';
-  ctx.font = `${Math.round(h * 0.34)}px "Bebas Neue", sans-serif`;
+  ctx.font = `${Math.round(quoteSize)}px "Bebas Neue", sans-serif`;
   ctx.textAlign = 'left';
-  const quote = caption.quote ? `“${caption.quote}”` : '';
   ctx.fillText(quote, textX, y + h / 2);
   const qw = ctx.measureText(quote).width;
   ctx.fillStyle = '#e88fb0';
-  ctx.font = `${Math.round(h * 0.26)}px "Bebas Neue", sans-serif`;
-  if (caption.quoteSource) {
-    ctx.fillText(`— ${caption.quoteSource}`, textX + qw + h * 0.22, y + h / 2 + h * 0.03);
+  ctx.font = `${Math.round(sourceSize)}px "Bebas Neue", sans-serif`;
+  if (source) {
+    ctx.fillText(source, textX + qw + h * 0.22, y + h / 2 + h * 0.03);
   }
   // Ticket stub: yellow, with notched sides.
   if (ticket) {
     ctx.font = `bold ${Math.round(h * 0.32)}px "Bebas Neue", sans-serif`;
-    const tw = ctx.measureText(ticket).width + h * 0.9;
+    const tw = ticketW;
     const th = h * 0.66;
     const tx = x + w - pad - tw;
     const ty = y + (h - th) / 2;

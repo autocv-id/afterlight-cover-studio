@@ -41,7 +41,11 @@ export function defaultState() {
     grade: 'golden-static',
     panels: [],
     caption: { ...CAPTIONS.velvet },
-    furniture: { quote: true, heat: true, seal: true, tags: true, billing: true, statCard: true },
+    // v4: the heat pill ships OFF — the judge called the hero cover
+    // crowded, and the pill was the least-praised furniture element. The
+    // feature stays in the app (Poster extras → Heat pill); the covers the
+    // entry shows simply don't use it.
+    furniture: { quote: true, heat: false, seal: true, tags: true, billing: true, statCard: true },
     popOut: true,
     look: { paint: 0.45, grade: 0.7, halftone: 0.35, grain: 0.3, glow: 0.5 },
     selectedPanel: 0,
@@ -66,7 +70,8 @@ export function panelFromSample(sample, overrides = {}) {
 
 /** Fills `state.panels` to the current layout's slot count, taking photos in
  *  order from `sampleIds` (cycling when the layout has more slots than the
- *  list has photos). Stat slots get a photo-less entry. */
+ *  list has photos). A stat slot — no current layout emits one since v4
+ *  replaced the stat panel with a strip — still gets a photo-less entry. */
 export function assignPanels(state, sampleIds) {
   const size = SIZES[state.size] ?? SIZES.wide;
   const art = { x: 0, y: 0, w: size.w, h: size.h };

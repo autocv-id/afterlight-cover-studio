@@ -14,7 +14,12 @@ export const SHOTS = {
     photos: ['hero-convertible', 'boss-suit', 'rider-bike', 'crew-rooftop', 'pier', 'motel-neon'],
   },
   editor: {
-    size: 'wide', layout: 'diagonal-trio', grade: 'neon-dusk',
+    // v4: the editor previews the SQUARE cover, not the wide one — a
+    // 16:9 preview in the tall centre stage left ~550px of dead space
+    // above and below it; the square preview fills 73% of the stage
+    // height instead of 41%, and the diagonal-trio square is a third
+    // distinct cover in the set (wide hero, portrait, square editor).
+    size: 'square', layout: 'diagonal-trio', grade: 'neon-dusk',
     caption: CAPTIONS.bloom, popOut: true,
     photos: ['mechanic-bandana', 'courier-night', 'guest-motel'],
   },
@@ -43,6 +48,10 @@ export function applyShot(shot, state) {
   state.selectedPanel = 0;
   assignPanels(state, preset.photos);
   if (shot === 'square') onePhotoFill(state, preset.photos[0]);
+  // The square title sits low across the middle strip: lift the middle
+  // crop's face clear of the lettering (positive panY moves the subject
+  // up in the frame), so the title never covers it.
+  if (shot === 'square' && state.panels[2]) state.panels[2].panY = 0.15;
   // The editor shot shows a mid-edit zoom on the selected panel.
   if (shot === 'editor' && state.panels[1]) {
     state.panels[1].zoom = 1.4;
